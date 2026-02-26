@@ -1,0 +1,7 @@
+.git
+.github
+deploy/terraform/.terraform
+*.log
+*.out
+bin/
+coverage/

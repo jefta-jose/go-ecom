@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecom-api
+  namespace: ecom
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ecom-api
+  template:
+    metadata:
+      labels:
+        app: ecom-api
+    spec:
+      containers:
+        - name: ecom-api
+          image: ghcr.io/REPLACE_WITH_YOUR_USER_OR_ORG/go-ecom:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: GOOSE_DBSTRING
+              value: host=postgres user=postgres password=postgres dbname=ecom sslmode=disable
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 20

@@ -1,0 +1,25 @@
+# Binaries
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Build/test artifacts
+*.test
+*.out
+coverage/
+
+# IDE
+.vscode/
+.idea/
+
+# Env
+.env.local
+.env.*.local
+
+# Terraform
+deploy/terraform/.terraform/
+deploy/terraform/.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
