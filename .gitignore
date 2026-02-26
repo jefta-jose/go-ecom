@@ -18,6 +18,9 @@ coverage/
 .env.local
 .env.*.local
 
+# Ignore main env file
+.env
+
 # Terraform
 deploy/terraform/.terraform/
 deploy/terraform/.terraform.lock.hcl
