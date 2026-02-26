@@ -59,15 +59,23 @@ func (app *application) run(h http.Handler) error {
 
 type application struct {
 	config config
-	// logger
+
+	// live database connection
 	db *pgx.Conn
 }
 
 type config struct {
+	// all server configuration goes here, for example the address to listen on
 	addr string
+
+	// all database configuration goes here, for example the connection string to connect to the database
 	db   dbConfig
 }
 
 type dbConfig struct {
+	// a string that contains the information needed to connect to a database.
 	dsn string
+
+	// other database configuration options can be added here, 
+	// such as max connections, connection timeout, etc.
 }

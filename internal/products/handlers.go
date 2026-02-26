@@ -7,10 +7,16 @@ import (
 	"github.com/jefta-jose/go-ecom/internal/json"
 )
 
+// This just means: “Every handler has a reference to the service it can call.”
+// The handler does not implement the Service interface itself.
+// It just uses the service to get things done.
 type handler struct {
 	service Service
 }
 
+// this is dependency injection in action
+// NewHandler is a function that takes a Service as an argument and returns a pointer to a handler struct.
+// 
 func NewHandler(service Service) *handler {
 	return &handler{
 		service: service,
