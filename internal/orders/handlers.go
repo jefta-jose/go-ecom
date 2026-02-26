@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/sikozonpc/ecom/internal/json"
+	"github.com/jefta-jose/go-ecom/internal/json"
 )
 
 type handler struct {

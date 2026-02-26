@@ -8,9 +8,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5"
-	repo "github.com/sikozonpc/ecom/internal/adapters/postgresql/sqlc"
-	"github.com/sikozonpc/ecom/internal/orders"
-	"github.com/sikozonpc/ecom/internal/products"
+	repo "github.com/jefta-jose/go-ecom/internal/adapters/postgresql/sqlc"
+	"github.com/jefta-jose/go-ecom/internal/orders"
+	"github.com/jefta-jose/go-ecom/internal/products"
 )
 
 func (app *application) mount() http.Handler {
@@ -34,6 +34,7 @@ func (app *application) mount() http.Handler {
 	productService := products.NewService(repo.New(app.db))
 	productHandler := products.NewHandler(productService)
 	r.Get("/products", productHandler.ListProducts)
+	r.Post("/create-product", productHandler.CreateProduct)
 
 	orderService := orders.NewService(repo.New(app.db), app.db)
 	ordersHandler := orders.NewHandler(orderService)
