@@ -13,6 +13,7 @@ import (
 	"github.com/jefta-jose/go-ecom/internal/products"
 )
 
+// this function contains a live database connection, and the server configuration, and is responsible for starting the server.
 func (app *application) mount() http.Handler {
 	r := chi.NewRouter()
 
@@ -31,6 +32,7 @@ func (app *application) mount() http.Handler {
 		w.Write([]byte("all good"))
 	})
 
+	// app.db is a live database connection, and we are passing it to the repository layer, which will be used by the service layer and the handler layer.
 	productService := products.NewService(repo.New(app.db))
 	productHandler := products.NewHandler(productService)
 	r.Get("/products", productHandler.ListProducts)
