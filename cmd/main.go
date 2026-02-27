@@ -5,45 +5,18 @@ import (
 	"log"
 	"log/slog"
 	"os"
-
-	"github.com/golang-migrate/migrate/v4"
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	// load dotenv
-	err := godotenv.Load()
-
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	// safely load the env
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found, continuing...")
 	}
 
-	MigrateDIR := os.Getenv("MigrateDIR")
-	GoLangMigrateURL := os.Getenv("GoLangMigrateURL")
-	
-	if GoLangMigrateURL == "" || MigrateDIR == "" {
-		log.Fatal("Environment variables GoLangMigrateURL and MigrateDIR must be set")
-	}
 	//-----------------------------------------------------------------
-
-	// run migrations
-	m, err := migrate.New(
-		"file://"+MigrateDIR,
-		GoLangMigrateURL,
-	)
-
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-        log.Fatal(err)
-    }
-
-    log.Println("Migrations applied successfully")
+	// Run database migrations manually before starting the server
 	//-----------------------------------------------------------------
 
 	ctx := context.Background()
