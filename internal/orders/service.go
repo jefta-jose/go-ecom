@@ -78,3 +78,12 @@ func (s *svc) PlaceOrder(ctx context.Context, tempOrder createOrderParams) (repo
 
 	return order, nil
 }
+
+func (s *svc) ListOrders(ctx context.Context) ([]repo.Order, error) {
+	orders, err := s.repo.ListOrders(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return orders, nil
+}

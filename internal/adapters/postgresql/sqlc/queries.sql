@@ -27,3 +27,9 @@ INSERT INTO products (
   price_in_centers,
   quantity
 ) VALUES ($1, $2, $3) RETURNING *;
+
+-- name: ListOrders :many
+SELECT
+  *
+FROM
+  orders;
