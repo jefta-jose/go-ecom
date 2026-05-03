@@ -1,0 +1,43 @@
+{{- if .Values.ingress.enabled -}}
+
+# ------------------------------------------------------------------------------------------
+# This template defines an Ingress resource for the Go API application.
+# It is conditionally created based on the 'ingress.enabled' value in values.yaml.
+# The Ingress resource allows external HTTP/S traffic to reach the Go API service.
+# It supports multiple hosts and paths, as well as TLS configuration.
+# ------------------------------------------------------------------------------------------
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "go-api-chart.fullname" . }}
+  labels:
+    {{- include "go-api-chart.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  {{- if .Values.ingress.tls }}
+  tls:
+    {{- toYaml .Values.ingress.tls | nindent 4 }}
+  {{- end }}
+  rules:
+    {{- range .Values.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ include "go-api-chart.fullname" $ }}
+                port:
+                  number: {{ $.Values.service.port }}
+          {{- end }}
+    {{- end }}
+{{- end }}

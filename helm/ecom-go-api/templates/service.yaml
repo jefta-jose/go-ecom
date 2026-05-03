@@ -1,0 +1,22 @@
+# --------------------------------------------------------------------------------------------------------
+# This file defines the Kubernetes Service for the Go API application.
+# The Service provides a stable network endpoint for accessing the application,
+# and can be configured to expose the application internally (ClusterIP) or externally (LoadBalancer).
+# The Service selector matches the labels defined on the Deployment to route traffic to the correct pods.
+# --------------------------------------------------------------------------------------------------------
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "go-api-chart.fullname" . }}
+  labels:
+    {{- include "go-api-chart.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    {{- include "go-api-chart.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: http
+      protocol: TCP
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}

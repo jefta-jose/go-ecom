@@ -1,0 +1,30 @@
+{{- if .Values.autoscaling.enabled }}
+
+# ------------------------------------------------------------------------------------------
+# This template defines a HorizontalPodAutoscaler resource for the Go API application.
+# It is conditionally created based on the 'autoscaling.enabled' value in values.yaml.
+# The HPA automatically scales the number of pod replicas based on observed CPU utilization.
+# When HA is enabled, the replicaCount in the Deployment is ignored, and the HPA manages the scaling of pods between the specified minReplicas and maxReplicas.
+# ------------------------------------------------------------------------------------------
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "go-api-chart.fullname" . }}
+  labels:
+    {{- include "go-api-chart.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "go-api-chart.fullname" . }}
+  minReplicas: {{ .Values.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
+{{- end }}

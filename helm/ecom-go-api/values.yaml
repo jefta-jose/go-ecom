@@ -1,0 +1,170 @@
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Number of go api pod replicas to run
+replicaCount: 3
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Docker image configuration
+image:
+  repository: ecom-go-api-project   # Image repository
+  pullPolicy: IfNotPresent          # Image pull policy (Always, IfNotPresent, Never)
+  tag: latest                       # Image tag
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# imagePullSecrets tells Kubernetes which credentials to use when pulling your Docker image from a private container registry 
+# (like Docker Hub private repos, AWS ECR, Google Container Registry, Azure Container Registry, etc.).
+
+# What goes in it:
+# You'd reference the name of a Kubernetes Secret that contains your registry credentials:
+# imagePullSecrets:
+#   - name: my-registry-secret
+
+# But First, you need to create the secret in your cluster:
+# kubectl create secret docker-registry my-registry-secret \
+#   --docker-server=https://index.docker.io/v1/ \
+#   --docker-username=myusername \
+#   --docker-password=mypassword \
+#   --docker-email=myemail@example.com
+imagePullSecrets: []
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Kubernetes Service configuration
+# because pods are ephemeral, we use a Service to provide a stable network endpoint for accessing the app
+service:
+  type: ClusterIP                   # can only be accessed within the cluster
+  port: 80                          # Service port exposed inside the cluster (client -> service -> container)
+  targetPort: 8080                  # Container port your app listens on
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Ingress resource configuration
+ingress:
+  enabled: true                    # Enable ingress resource
+  className: "nginx"                # IngressClass name
+  annotations: {}                   # Annotations for the ingress
+  hosts:
+    - host: go-api.local            # Hostname for ingress
+      paths:
+        - path: /                   # Path to match
+          pathType: Prefix          # Path type (Prefix or Exact)
+        
+        # - path: /payments         # Another path example
+        #   pathType: Prefix
+  tls: []                           # TLS configuration for HTTPS
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Resource requests and limits for the pod
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Database connection string — stored in a Kubernetes Secret
+db:
+  dsn: "host=172.18.0.1 port=5432 user=postgres password=postgres123 dbname=go_ecom sslmode=disable"
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# ServiceAccount for pod identity (required for cloud IAM integration)
+serviceAccount:
+  create: true                        # Create a service account
+  annotations: {}                     # Annotations for cloud IAM binding
+    # For AWS EKS + IRSA: eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT_ID:role/ROLE_NAME
+    # For GCP GKE + Workload Identity: iam.gke.io/gcp-service-account: GSA_NAME@PROJECT_ID.iam.gserviceaccount.com
+    # For Azure AKS + Managed Identity: azure.workload.identity/client-id: CLIENT_ID
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# External Secrets Operator - Fetch secrets from cloud secret managers
+# Requires External Secrets Operator: helm repo add external-secrets https://charts.external-secrets.io
+#                                     helm install external-secrets external-secrets/external-secrets
+externalSecrets:
+  enabled: false                      # Enable external secrets (disabled for local dev)
+  secretStoreName: cloud-secret-store # Name of the SecretStore resource
+  refreshInterval: 1h                 # How often to sync secrets
+  provider: aws                       # Cloud provider: aws, azure, or gcp
+  
+  # AWS Secrets Manager configuration
+  aws:
+    region: us-east-1                      # AWS region
+    secretName: ecom-go-api/db-string      # Secret name in AWS Secrets Manager
+    secretKey: DBSTRING                    # Key within the secret (if JSON)
+    roleArn: ""                            # IAM role ARN (for IRSA), leave empty to use credentialsSecretName
+    credentialsSecretName: aws-credentials # K8s secret with access key (if not using IRSA)
+    # ------------------------------------------------------------
+    # To create: kubectl create secret generic aws-credentials \
+    #              --from-literal=access-key-id=YOUR_ACCESS_KEY \
+    #              --from-literal=secret-access-key=YOUR_SECRET_KEY
+  
+  # Azure Key Vault configuration
+  azure:
+    vaultUrl: https://my-vault.vault.azure.net/ # Azure Key Vault URL
+    secretName: db-connection-string            # Secret name in Key Vault
+    useManagedIdentity: false                   # Use managed identity (true) or service principal (false)
+    tenantId: ""                                # Azure AD tenant ID (if using service principal)
+    credentialsSecretName: azure-credentials    # K8s secret with service principal (if not using managed identity)
+    # ------------------------------------------------------------
+    # To create: kubectl create secret generic azure-credentials \
+    #              --from-literal=client-id=YOUR_CLIENT_ID \
+    #              --from-literal=client-secret=YOUR_CLIENT_SECRET
+  
+  # GCP Secret Manager configuration
+  gcp:
+    projectId: my-gcp-project              # GCP project ID
+    secretName: db-connection-string       # Secret name in Secret Manager
+    secretVersion: latest                  # Secret version (or specific version number)
+    useWorkloadIdentity: false             # Use Workload Identity (true) or service account key (false)
+    clusterLocation: us-central1           # GKE cluster location (if using Workload Identity)
+    clusterName: my-cluster                # GKE cluster name (if using Workload Identity)
+    credentialsSecretName: gcp-credentials # K8s secret with service account key (if not using Workload Identity)
+    # ------------------------------------------------------------
+    # To create: kubectl create secret generic gcp-credentials \
+    #              --from-file=service-account-key=path/to/key.json
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Horizontal Pod Autoscaler configuration
+autoscaling:
+  enabled: true                       # Enable HPA
+  minReplicas: 2                      # Minimum number of pods
+  maxReplicas: 5                      # Maximum number of pods
+  targetCPUUtilizationPercentage: 80  # Target CPU utilization for scaling
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Liveness probe configuration (checks if the app is running)
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 15
+
+# Readiness probe configuration (checks if the app is ready to serve traffic)
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 8080
+  initialDelaySeconds: 5
+  periodSeconds: 10
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# advanced Kubernetes scheduling options (nodeSelector, tolerations, affinity)
+# These allow you to control which nodes your pods run on based on labels, taints, and affinity rules.
+# nodeSelector: { "disktype": "ssd" } would schedule pods on nodes labeled with disktype=ssd
+# tolerations: allows pods to tolerate node taints
+# affinity: allows complex rules for pod placement based on node labels, pod labels, etc.
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------

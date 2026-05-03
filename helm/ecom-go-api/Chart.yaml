@@ -1,0 +1,17 @@
+## The API version of the Helm chart format. v2 is for Helm 3 and above.
+apiVersion: v2
+
+## The name of the Helm chart. Should be unique within the repository.
+name: go-api-chart
+
+## A short description of what this chart does.
+description: Helm chart for the ecom Go API
+
+## The type of chart. 'application' is for deployable apps, 'library' is for reusable chart snippets.
+type: application
+
+## The version of the Helm chart itself. Increment this when you make changes to the chart.
+version: 0.1.0
+
+## The version of the application being deployed (not the chart). Used for informational purposes.
+appVersion: "1.0.1"
