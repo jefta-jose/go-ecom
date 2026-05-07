@@ -1,0 +1,29 @@
+{
+  "name": "Go Dev Container",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "remoteUser": "vscode",
+  "updateRemoteUserUID": true,
+  "runArgs": [
+    "--env-file",
+    ".devcontainer/devcontainer.env",
+    "--add-host=host.docker.internal:host-gateway"
+  ],
+  // application specific post create command, 
+  // you can run any command here that you want to be executed after
+  // the container is created
+  "postCreateCommand": "go mod tidy",
+  "customizations":{
+    "vscode": {
+        "settings": {
+            "go.toolsManagement.autoUpdate": true
+        },
+        "extensions": [
+            "golang.Go",
+            "ms-azuretools.vscode-docker",
+            "hashicorp.terraform"
+        ]
+        }
+    }
+}

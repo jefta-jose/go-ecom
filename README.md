@@ -51,6 +51,33 @@ To add new features:
 3. Create new service methods in the relevant service package.
 4. Add new handlers and routes in `api.go`.
 
+## starting the API
+locally
+```
+go run /cmd
+```
+
+in dev container
+```
+go run <absolute-path/cmd>
+```
+
+## Test this API with local db
+run this command to get your machine's IP-ADDRESS
+```
+hostname -I 
+```
+
+forward traffic from your machine to the deployed database
+```
+kubectl port-forward --address 0.0.0.0 svc/postgres-db -n ecom-go-db 5432:5432
+```
+
+update your devcontainer.env
+```
+DBSTRING=postgres://postgres:postgres123@<YOUR_HOST_IP>:5432/go_ecom
+```
+
 ## Summary
 
 This project leverages Go’s strong typing and sqlc’s code generation to create a clean, maintainable, and scalable API. The abstractions around configuration, database access, and HTTP handling make it easy to extend and test.

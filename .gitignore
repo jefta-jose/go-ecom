@@ -27,3 +27,4 @@ deploy/terraform/.terraform.lock.hcl
 *.tfstate
 *.tfstate.*
 
+devcontainer.env
