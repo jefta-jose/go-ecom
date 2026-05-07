@@ -46,9 +46,9 @@
     =========================================================================================
 */}}
 
-{{- define "go-api-chart.fullname" -}}
-{{- if .Values.fullnameOverride }}
-{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- define "go-api-chart" -}}
+{{- if .ValuesOverride }}
+{{- .ValuesOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
 {{- $name := default .Chart.Name .Values.nameOverride }}
 {{- if contains $name .Release.Name }}

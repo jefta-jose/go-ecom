@@ -10,14 +10,14 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "go-api-chart.fullname" . }}
+  name: {{ include "go-api-chart" . }}
   labels:
     {{- include "go-api-chart.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "go-api-chart.fullname" . }}
+    name: {{ include "go-api-chart" . }}
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}
   metrics:
