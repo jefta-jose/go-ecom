@@ -22,6 +22,7 @@ spec:
     metadata:
       labels:
         {{- include "go-api-chart.selectorLabels" . | nindent 8 }}
+        app: ecom-go-api
     spec:
       {{- if .Values.serviceAccount.create }}
       serviceAccountName: {{ include "go-api-chart.fullname" . }}

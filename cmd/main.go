@@ -7,6 +7,10 @@ import (
 	"os"
 	"github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
+	// uncomment and run go mod tidy incase you want to run migrations locally
+	// "github.com/golang-migrate/migrate/v4"
+    // _ "github.com/golang-migrate/migrate/v4/database/postgres"
+    // _ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 func main() {
@@ -42,6 +46,22 @@ func main() {
 	defer conn.Close(ctx)
 
 	logger.Info("connected to database", "", "")
+
+	// for running migrations locally
+	// m, err := migrate.New(
+	// 	"file:/home/devndegwa/Development/ecom-go-api-project/internal/adapters/postgresql/migrations",
+	// 	"postgres://postgres:postgres123@localhost:5432/go_ecom?sslmode=disable",
+	// )
+
+	// if err != nil {
+    //     log.Fatal(err)
+    // }
+
+    // if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+    //     log.Fatal(err)
+    // }
+
+    // log.Println("Migrations applied successfully")
 
 	api := application{
 		config: cfg,
